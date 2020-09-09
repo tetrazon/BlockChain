@@ -1,0 +1,17 @@
+.idea/
+.gradle/
+build/
+Problems/
+gradle/
+course-remote-info.yaml
+course-info.yaml
+build.gradle
+gradlew.bat
+gradlew
+settings.gradle
+
+BlockChain/*
+
+!BlockChain/task
+!/.gitignore
+

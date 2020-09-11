@@ -1,16 +1,20 @@
 package blockchain.entity;
 
-import blockchain.util.StringUtil;
-
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BlockChain {
-    private static int idGenerator = 1;
+public class BlockChain implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private static int zerosQuantity;
     private List<Block> blockChain = new LinkedList<>();
 
+    public static void setZerosQuantity(int zeros) {
+        zerosQuantity = zeros;
+    }
+
     public void addBlock() {
-        blockChain.add(new Block());
+        blockChain.add(new Block(blockChain, zerosQuantity));
     }
 
     public void printBlocks(){
@@ -27,51 +31,13 @@ public class BlockChain {
             return validated;
         }
         for (int i = 1; i < sizeBlockChain; i++) {
-            if(!(blockChain.get(i - 1).hash.equals(blockChain.get(i).previousHash))) {
+            if(!(blockChain.get(i - 1).getHash().equals(blockChain.get(i).getPreviousHash()))) {
                 validated = false;
                 break;
             }
         }
         return validated;
     }
-    private class Block {
-        private final long id;
-        private long timeStamp;
-        private final String previousHash;
-        private final String hash;
 
-        public Block() {
-            timeStamp = System.currentTimeMillis();
-            id = idGenerator++;
-            if (id == 1) {
-                previousHash = "0";
-            } else {
-                previousHash = blockChain.get(blockChain.size() - 1).hash;
-            }
-            hash = StringUtil.applySha256(previousHash + id + timeStamp);
-        }
-
-        @Override
-        public String toString() {
-            return "BlockChain:\n" + "Id: " + id + "\nTimestamp: " + timeStamp + "\nHash of the previous block:\n"
-                    + previousHash + "\nHash of the block:\n" + hash  + "\n";
-        }
-
-        public long getId() {
-            return id;
-        }
-
-        public long getTimeStamp() {
-            return timeStamp;
-        }
-
-        public String getPreviousHash() {
-            return previousHash;
-        }
-
-        public String getHash() {
-            return hash;
-        }
-    }
 
 }

@@ -8,26 +8,31 @@ import java.util.Random;
 
 public class Block implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static int idGenerator = 1;
+    //private static int idGenerator = 1;
+    private static int zerosQuantity;
     private final long id;
     private long timeStamp;
     private final String previousHash;
     private final String hash;
     private int magicNumber;
     private long generationTimeSec;
+    private int miner;
+    private String zerosString;
 
-    public Block(List<Block> blockChain, int zerosQuantity) {
+
+    public Block(List<Block> blockChain, int miner) {
         timeStamp = System.currentTimeMillis();
-        id = idGenerator++;
+        this.miner = miner;
+        id = blockChain.size() + 1;
         if (id == 1) {
             previousHash = "0";
         } else {
             previousHash = blockChain.get(blockChain.size() - 1).hash;
         }
-        hash = generateHash(zerosQuantity);
+        hash = generateHash();
     }
 
-    private String generateHash(int zerosQuantity) {
+    private String generateHash() {
         String foundHash;
         char[] zeroChars = new char[zerosQuantity];
         for (int i = 0; i < zerosQuantity; i++) {
@@ -38,7 +43,7 @@ public class Block implements Serializable {
         long startTime = System.currentTimeMillis();
         magicNumber = 0;
         Random randomInt = new Random(System.currentTimeMillis());
-        foundHash = StringUtil.applySha256(previousHash + id + timeStamp + magicNumber);
+        foundHash = StringUtil.applySha256(previousHash + id + timeStamp + magicNumber + miner + zerosQuantity);
         while (true){
             if (foundHash.substring(0, zerosQuantity).equals(stringOfZeros)){
                 generationTimeSec = (System.currentTimeMillis() - startTime) / 1000;
@@ -47,17 +52,35 @@ public class Block implements Serializable {
             magicNumber = randomInt.nextInt();
             foundHash = StringUtil.applySha256(previousHash + id + timeStamp + magicNumber);
         }
+
+        if (generationTimeSec < 16) {
+            changeN(1);
+            zerosString = "N was increased to 1";
+        } else if (generationTimeSec >= 16 && generationTimeSec <= 60 ) {
+            zerosString = "N stays the same";
+        } else {
+            changeN(-1);
+            zerosString = "N was decreased by 1";
+        }
         return foundHash;
     }
 
     @Override
     public String toString() {
-        return "Block:\n" + "Id: " + id
+
+        return "Block:"
+                +"\nCreated by miner # " + miner
+                + "\nId: " + id
                 + "\nTimestamp: " + timeStamp
                 + "\nMagic number: " + magicNumber
                 + "\nHash of the previous block:\n" + previousHash
                 + "\nHash of the block:\n" + hash
-                + "\nBlock was generating for " + generationTimeSec +" seconds" + "\n";
+                + "\nBlock was generating for " + generationTimeSec +" seconds"
+                + "\n" + zerosString + "\n";
+    }
+
+    private synchronized  void changeN(int n) {
+        zerosQuantity += n;
     }
 
     public long getId() {

@@ -6,19 +6,24 @@ import java.util.List;
 
 public class BlockChain implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static int zerosQuantity;
+    //private static int zerosQuantity;
     private List<Block> blockChain = new LinkedList<>();
 
-    public static void setZerosQuantity(int zeros) {
+    /*public static void setZerosQuantity(int zeros) {
         zerosQuantity = zeros;
-    }
+    }*/
 
-    public void addBlock() {
-        blockChain.add(new Block(blockChain, zerosQuantity));
+    public synchronized void addBlock(int miner) {
+            blockChain.add(new Block(blockChain, miner));
+    }
+    public synchronized int getSize() {
+        return blockChain.size();
     }
 
     public void printBlocks(){
-        blockChain.forEach(System.out::println);
+        for (int i = 0; i < 5; i++) {
+            System.out.println(blockChain.get(i));
+        }
     }
 
     public boolean validateBlocks() {

@@ -1,29 +1,41 @@
 package blockchain.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class BlockChain implements Serializable {
     private static final long serialVersionUID = 1L;
-    //private static int zerosQuantity;
     private List<Block> blockChain = new LinkedList<>();
+    private List<String> messages = new ArrayList<>();
 
-    /*public static void setZerosQuantity(int zeros) {
-        zerosQuantity = zeros;
-    }*/
-
-    public synchronized void addBlock(int miner) {
-            blockChain.add(new Block(blockChain, miner));
+    public void sendMessage(String message) {
+        messages.add(message);
     }
-    public synchronized int getSize() {
+
+    public void addBlock(int miner) {
+            blockChain.add(new Block(blockChain, miner, (ArrayList<String>) messages));
+            messages.clear();
+    }
+    public int getSize() {
         return blockChain.size();
     }
 
-    public void printBlocks(){
-        for (int i = 0; i < 5; i++) {
-            System.out.println(blockChain.get(i));
+    public void printBlocks(int quantity){
+        if (quantity <0) {
+            throw new IllegalArgumentException("Bad quantity");
         }
+        if (quantity == 0) {
+            return;
+        }
+        if (quantity == 1) {
+            System.out.println(blockChain.get(0));
+            return;
+        }
+
+        blockChain = blockChain.subList(0, quantity);
+        blockChain.forEach(System.out::println);
     }
 
     public boolean validateBlocks() {

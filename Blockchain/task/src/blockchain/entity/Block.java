@@ -3,24 +3,33 @@ package blockchain.entity;
 import blockchain.util.StringUtil;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class Block implements Serializable {
     private static final long serialVersionUID = 1L;
-    //private static int idGenerator = 1;
     private static int zerosQuantity;
     private final long id;
     private long timeStamp;
     private final String previousHash;
     private final String hash;
     private int magicNumber;
-    private long generationTimeSec;
+    private double generationTimeSec;
     private int miner;
     private String zerosString;
+    private List<String> messageHistory;
 
+    private String messagesAsString() {
+        StringBuilder messagesSB = new StringBuilder();
+        for (String message : messageHistory) {
+            messagesSB.append(message);
+        }
+        return messagesSB.toString();
+    }
 
-    public Block(List<Block> blockChain, int miner) {
+    public Block(List<Block> blockChain, int miner, ArrayList<String> messageHistory) {
+        this.messageHistory = (List<String>) messageHistory.clone();
         timeStamp = System.currentTimeMillis();
         this.miner = miner;
         id = blockChain.size() + 1;
@@ -43,10 +52,11 @@ public class Block implements Serializable {
         long startTime = System.currentTimeMillis();
         magicNumber = 0;
         Random randomInt = new Random(System.currentTimeMillis());
-        foundHash = StringUtil.applySha256(previousHash + id + timeStamp + magicNumber + miner + zerosQuantity);
+        //messageHistory = messageGenerator.getMessageListAsString();
+        foundHash = StringUtil.applySha256(previousHash + id + timeStamp + magicNumber + miner + zerosQuantity + messageHistory);
         while (true){
             if (foundHash.substring(0, zerosQuantity).equals(stringOfZeros)){
-                generationTimeSec = (System.currentTimeMillis() - startTime) / 1000;
+                generationTimeSec = (System.currentTimeMillis() - startTime) / 1000.;
                 break;
             }
             magicNumber = randomInt.nextInt();
@@ -75,6 +85,7 @@ public class Block implements Serializable {
                 + "\nMagic number: " + magicNumber
                 + "\nHash of the previous block:\n" + previousHash
                 + "\nHash of the block:\n" + hash
+                + "\nBlock data:" + (id == 1 ? " no messages" : messagesAsString())
                 + "\nBlock was generating for " + generationTimeSec +" seconds"
                 + "\n" + zerosString + "\n";
     }
